@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 
 public class CounterFrame extends JFrame implements ActionListener {
     private JLabel north_label , center_label;
@@ -11,9 +12,10 @@ public class CounterFrame extends JFrame implements ActionListener {
     private String on , off ;
     private JButton rest , start ;
     private boolean preesed;
-    private int counter1;
+    private MyThread thread;
+    private int counter;
     public CounterFrame(){
-
+        super("Timer");
         on = "Timer : ON";
         off = "Timer : OFF";
         north_label = new JLabel(off);
@@ -45,8 +47,9 @@ public class CounterFrame extends JFrame implements ActionListener {
         p3.setBackground(Color.gray);
         start.addActionListener(this);
         rest.addActionListener(this);
-
-        counter1 = 0;
+        //for thread
+        thread = new MyThread("FirstThread");
+        counter = 0;
     }
 
     public void actionPerformed(ActionEvent event){
@@ -55,14 +58,25 @@ public class CounterFrame extends JFrame implements ActionListener {
             north_label.setForeground(Color.GREEN);
             start.setText(" PAUSE ");
             start.setForeground(Color.RED);
+            if (counter == 0) {
+                thread.start();
+                counter++;
+            }
             if (preesed){
                 start.setText(" START ");
                 north_label.setText(off);
                 north_label.setForeground(Color.RED);
                 start.setForeground(Color.GREEN);
+                try{
+                    wait();
+                }
+                catch (InterruptedException exception){
+                    System.out.println(exception.toString());
+                }
             }
+
             preesed = !preesed ;
-            counter1 = 1;
+
         }
         else if (event.getSource() == rest){
             north_label.setText(off);
@@ -70,7 +84,47 @@ public class CounterFrame extends JFrame implements ActionListener {
             start.setText(" START ");
             start.setForeground(Color.GREEN);
             preesed = false;
+
         }
 
     }
-}
+    public void setCenter_label(String name){
+        center_label.setText(name);
+    }
+
+    class MyThread extends Thread{
+        private int mill , second , minute;
+        private DecimalFormat decimalFormat_second , decimalFormat_minute , decimalFormat_mill ;
+        public MyThread(String name){
+            super(name);
+            mill = 0;
+            second = 0;
+            minute = 0;
+            decimalFormat_second = new DecimalFormat("00");
+            decimalFormat_mill = new DecimalFormat("00");
+            decimalFormat_minute = new DecimalFormat("00");
+        }
+        public synchronized void  run() {
+            while (true) {
+                try {
+                    Thread.sleep(95);
+                    mill++;
+                    setCenter_label(decimalFormat_minute.format(minute)+":" +
+                            decimalFormat_second.format(second) +"."+
+                            decimalFormat_mill.format(mill));
+
+                    if (mill == 10){
+                        second ++;
+                        mill = mill % 10;
+                        if (second == 60){
+                            minute++;
+                            second = second % 60;
+                        }
+                    }
+                } catch (InterruptedException exception) {
+                    System.out.println(exception.toString());
+                }
+            }
+        }
+    }
+}//end of the class
