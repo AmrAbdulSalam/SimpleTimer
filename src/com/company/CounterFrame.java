@@ -14,6 +14,7 @@ public class CounterFrame extends JFrame implements ActionListener {
     private boolean preesed;
     private MyThread thread;
     private int counter;
+    private int mill , second , minute;
     public CounterFrame(){
         super("Timer");
         on = "Timer : ON";
@@ -84,16 +85,16 @@ public class CounterFrame extends JFrame implements ActionListener {
             start.setText(" START ");
             start.setForeground(Color.GREEN);
             preesed = false;
+            mill = second = minute = 0;
 
         }
-
     }
     public void setCenter_label(String name){
         center_label.setText(name);
     }
 
     class MyThread extends Thread{
-        private int mill , second , minute;
+
         private DecimalFormat decimalFormat_second , decimalFormat_minute , decimalFormat_mill ;
         public MyThread(String name){
             super(name);
