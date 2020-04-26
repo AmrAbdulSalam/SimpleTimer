@@ -11,12 +11,15 @@ public class CounterFrame extends JFrame implements ActionListener {
     private JPanel p1 , p2 , p3 ,p4;
     private String on , off ;
     private JButton rest , start ;
-    private boolean preesed;
-    private MyThread thread;
+    private boolean preesed , statflag , key;
+    private static MyThread thread;
     private int counter;
     private int mill , second , minute;
+    private int x , y , z;
+    private DecimalFormat decimalFormat_second , decimalFormat_minute , decimalFormat_mill ;
+
     public CounterFrame(){
-        super("Timer");
+        super("StopTimer");
         on = "Timer : ON";
         off = "Timer : OFF";
         north_label = new JLabel(off);
@@ -49,8 +52,9 @@ public class CounterFrame extends JFrame implements ActionListener {
         start.addActionListener(this);
         rest.addActionListener(this);
         //for thread
-        thread = new MyThread("FirstThread");
         counter = 0;
+        statflag = false;
+
     }
 
     public void actionPerformed(ActionEvent event){
@@ -59,7 +63,11 @@ public class CounterFrame extends JFrame implements ActionListener {
             north_label.setForeground(Color.GREEN);
             start.setText(" PAUSE ");
             start.setForeground(Color.RED);
+            key = true;
+
             if (counter == 0) {
+                System.out.println("inside counter");
+                thread = new MyThread("TimerThrid");
                 thread.start();
                 counter++;
             }
@@ -68,16 +76,17 @@ public class CounterFrame extends JFrame implements ActionListener {
                 north_label.setText(off);
                 north_label.setForeground(Color.RED);
                 start.setForeground(Color.GREEN);
-                try{
-                    wait();
-                }
-                catch (InterruptedException exception){
-                    System.out.println(exception.toString());
-                }
+                x = mill;
+                y = second;
+                z = minute;
+                key = false;
+                setCenter_label(decimalFormat_minute.format(z) + ":" +
+                        decimalFormat_second.format(y) + "." +
+                        decimalFormat_mill.format(x));
+                System.out.println(mill + " " + second + " " + minute);
             }
-
             preesed = !preesed ;
-
+            System.out.println(key);
         }
         else if (event.getSource() == rest){
             north_label.setText(off);
@@ -85,8 +94,10 @@ public class CounterFrame extends JFrame implements ActionListener {
             start.setText(" START ");
             start.setForeground(Color.GREEN);
             preesed = false;
+            counter = 0;
+            key = false; // to break from the loop
             mill = second = minute = 0;
-
+            center_label.setText("00:00.0");
         }
     }
     public void setCenter_label(String name){
@@ -95,33 +106,36 @@ public class CounterFrame extends JFrame implements ActionListener {
 
     class MyThread extends Thread{
 
-        private DecimalFormat decimalFormat_second , decimalFormat_minute , decimalFormat_mill ;
         public MyThread(String name){
             super(name);
             mill = 0;
             second = 0;
             minute = 0;
             decimalFormat_second = new DecimalFormat("00");
-            decimalFormat_mill = new DecimalFormat("00");
+            decimalFormat_mill = new DecimalFormat("0");
             decimalFormat_minute = new DecimalFormat("00");
         }
-        public synchronized void  run() {
+        public void run() {
             while (true) {
                 try {
+                    if (!key)
+                       break;
                     Thread.sleep(95);
-                    mill++;
-                    setCenter_label(decimalFormat_minute.format(minute)+":" +
-                            decimalFormat_second.format(second) +"."+
-                            decimalFormat_mill.format(mill));
 
-                    if (mill == 10){
-                        second ++;
-                        mill = mill % 10;
-                        if (second == 60){
+                    setCenter_label(decimalFormat_minute.format(minute) + ":" +
+                            decimalFormat_second.format(second) + "." +
+                            decimalFormat_mill.format(mill));
+                    //System.out.println("while true");
+                    mill++;
+                    if (mill == 9) {
+                        second++;
+                        mill = mill % 9;
+                        if (second == 60) {
                             minute++;
                             second = second % 60;
-                        }
                     }
+                }
+
                 } catch (InterruptedException exception) {
                     System.out.println(exception.toString());
                 }
