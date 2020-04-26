@@ -11,15 +11,15 @@ public class CounterFrame extends JFrame implements ActionListener {
     private JPanel p1 , p2 , p3 ,p4;
     private String on , off ;
     private JButton rest , start ;
-    private boolean preesed , statflag , key;
-    private static MyThread thread;
+    private boolean preesed , statflag , key , key2;
+    private static MyThread thread , thread1;
     private int counter;
-    private int mill , second , minute;
-    private int x , y , z;
+    private static int mill , second , minute;
+    private static int x , y , z;
     private DecimalFormat decimalFormat_second , decimalFormat_minute , decimalFormat_mill ;
 
     public CounterFrame(){
-        super("StopTimer");
+        super("StopWatch");
         on = "Timer : ON";
         off = "Timer : OFF";
         north_label = new JLabel(off);
@@ -41,7 +41,6 @@ public class CounterFrame extends JFrame implements ActionListener {
         p1.add(north_label);
         p1.setBackground(Color.GRAY);
         add(p1 , BorderLayout.NORTH);
-
         p2.add(center_label);
         add(p2 , BorderLayout.CENTER);
         p2.setBackground(Color.gray);
@@ -64,9 +63,8 @@ public class CounterFrame extends JFrame implements ActionListener {
             start.setText(" PAUSE ");
             start.setForeground(Color.RED);
             key = true;
-
+            key2 = true;
             if (counter == 0) {
-                System.out.println("inside counter");
                 thread = new MyThread("TimerThrid");
                 thread.start();
                 counter++;
@@ -79,14 +77,9 @@ public class CounterFrame extends JFrame implements ActionListener {
                 x = mill;
                 y = second;
                 z = minute;
-                key = false;
-                setCenter_label(decimalFormat_minute.format(z) + ":" +
-                        decimalFormat_second.format(y) + "." +
-                        decimalFormat_mill.format(x));
-                System.out.println(mill + " " + second + " " + minute);
+                key2 = false; // while loop still running when its true it increment the value!
             }
             preesed = !preesed ;
-            System.out.println(key);
         }
         else if (event.getSource() == rest){
             north_label.setText(off);
@@ -120,22 +113,21 @@ public class CounterFrame extends JFrame implements ActionListener {
                 try {
                     if (!key)
                        break;
-                    Thread.sleep(95);
-
                     setCenter_label(decimalFormat_minute.format(minute) + ":" +
                             decimalFormat_second.format(second) + "." +
                             decimalFormat_mill.format(mill));
-                    //System.out.println("while true");
-                    mill++;
-                    if (mill == 9) {
-                        second++;
-                        mill = mill % 9;
-                        if (second == 60) {
-                            minute++;
-                            second = second % 60;
+                    if (key2) {
+                        Thread.sleep(95);
+                        mill++;
+                        if (mill == 9) {
+                            second++;
+                            mill = mill % 9;
+                            if (second == 60) {
+                                minute++;
+                                second = second % 60;
+                            }
+                        }
                     }
-                }
-
                 } catch (InterruptedException exception) {
                     System.out.println(exception.toString());
                 }
