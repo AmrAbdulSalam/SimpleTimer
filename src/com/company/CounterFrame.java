@@ -117,14 +117,17 @@ public class CounterFrame extends JFrame implements ActionListener {
                             decimalFormat_second.format(second) + "." +
                             decimalFormat_mill.format(mill));
                     if (key2) {
-                        Thread.sleep(95);
+                        Thread.sleep(20);
                         mill++;
-                        if (mill == 9) {
+                        if (mill == 10) {
                             second++;
-                            mill = mill % 9;
+                            mill = mill % 10;
                             if (second == 60) {
                                 minute++;
                                 second = second % 60;
+                                if(minute == 60){
+                                    minute = minute % 60;
+                                }
                             }
                         }
                     }
